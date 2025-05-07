@@ -29,6 +29,18 @@ A Python-based application that allows users to record daily expenses, store the
 - Filters by date range
 - Export charts as images
 - Cloud-based data storage
+# Personal Expense Tracker
+
+This project tracks expenses and generates reports.
+
+## Example Pie Chart
+
+![Pie Chart](expense_pie_chart.png)
+
+## Example Bar Chart
+
+![Bar Chart](expense_bar_chart.png)
+
 
 ## 👥 My Contributions
 - Developed all core features and CLI
