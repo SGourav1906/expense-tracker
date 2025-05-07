@@ -1,93 +1,57 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
 import os
 
-DATA_FILE = 'expenses.csv'
+# Check if the CSV file exists
+if os.path.exists("expenses.csv"):
+    expenses = pd.read_csv("expenses.csv")
+else:
+    expenses = pd.DataFrame(columns=["Date", "Category", "Amount"])
 
-if not os.path.exists(DATA_FILE):
-    df_init = pd.DataFrame(columns=['Date', 'Category', 'Amount', 'Description'])
-    df_init.to_csv(DATA_FILE, index=False)
+def add_expense(date, category, amount):
+    global expenses
+    new_expense = {"Date": date, "Category": category, "Amount": amount}
+    expenses = pd.concat([expenses, pd.DataFrame([new_expense])], ignore_index=True)
 
-def add_expense(date, category, amount, description):
-    new_expense = {
-        'Date': date,
-        'Category': category,
-        'Amount': amount,
-        'Description': description
-    }
-    df = pd.read_csv(DATA_FILE)
-    df = pd.concat([df, pd.DataFrame([new_expense])], ignore_index=True)
-    df.to_csv(DATA_FILE, index=False)
-    print("\n✅ Expense added successfully!")
+    expenses.to_csv("expenses.csv", index=False)
+    print(f"Added: {new_expense}")
 
-def view_total_expenses():
-    df = pd.read_csv(DATA_FILE)
-    total = df['Amount'].sum()
-    print(f"\n💰 Total expenses: ₹{total:.2f}")
+def view_expenses():
+    print(expenses)
 
-def plot_category_spending():
-    df = pd.read_csv(DATA_FILE)
-    if df.empty:
-        print("\n⚠️ No data to plot.")
-        return
-    category_sum = df.groupby('Category')['Amount'].sum()
-    category_sum.plot(kind='pie', autopct='%1.1f%%', startangle=90)
-    plt.title('Spending by Category')
-    plt.ylabel('')
-    plt.show()
+def plot_expenses():
+    category_sum = expenses.groupby("Category")["Amount"].sum()
+    plt.figure(figsize=(8,6))
+    category_sum.plot(kind='bar')
+    plt.title("Expenses by Category")
+    plt.ylabel("Amount Spent")
+    plt.xlabel("Category")
+    plt.savefig("expenses_chart.png")
+    print("Chart saved as expenses_chart.png")
 
-def plot_monthly_spending():
-    df = pd.read_csv(DATA_FILE)
-    if df.empty:
-        print("\n⚠️ No data to plot.")
-        return
-    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-    df = df.dropna(subset=['Date'])
-    df['Month'] = df['Date'].dt.to_period('M')
-    monthly_sum = df.groupby('Month')['Amount'].sum()
-    monthly_sum.plot(kind='bar')
-    plt.title('Monthly Spending Trend')
-    plt.xlabel('Month')
-    plt.ylabel('Amount Spent')
-    plt.show()
+# Example interaction
+while True:
+    print("\nChoose an option:")
+    print("1. Add expense")
+    print("2. View expenses")
+    print("3. Plot expenses")
+    print("4. Exit")
+    choice = input("Enter choice: ")
 
-def main():
-    while True:
-        print("\n=== Personal Expense Tracker ===")
-        print("1. Add Expense")
-        print("2. View Total Expenses")
-        print("3. Plot Category Spending")
-        print("4. Plot Monthly Spending")
-        print("5. Exit")
-        choice = input("Enter your choice (1-5): ")
+    if choice == '1':
+        date = input("Enter date (YYYY-MM-DD): ")
+        category = input("Enter category: ")
+        amount = float(input("Enter amount: "))
+        add_expense(date, category, amount)
+    elif choice == '2':
+        view_expenses()
+    elif choice == '3':
+        plot_expenses()
+    elif choice == '4':
+        print("Goodbye!")
+        break
+    else:
+        print("Invalid choice.")
 
-        if choice == '1':
-            date = input("Date (YYYY-MM-DD): ")
-            category = input("Category: ")
-            try:
-                amount = float(input("Amount: "))
-            except ValueError:
-                print("❌ Invalid amount. Please enter a number.")
-                continue
-            description = input("Description: ")
-            add_expense(date, category, amount, description)
 
-        elif choice == '2':
-            view_total_expenses()
-
-        elif choice == '3':
-            plot_category_spending()
-
-        elif choice == '4':
-            plot_monthly_spending()
-
-        elif choice == '5':
-            print("👋 Goodbye!")
-            break
-        else:
-            print("❌ Invalid choice. Please enter a number from 1-5.")
-
-if __name__ == "__main__":
-    main()
+ 
